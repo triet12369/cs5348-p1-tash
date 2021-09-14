@@ -1,1 +1,0 @@
-gcc tash.c –o tash -Wall -Werror -O
