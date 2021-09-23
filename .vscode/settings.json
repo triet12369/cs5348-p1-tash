@@ -1,6 +1,7 @@
 {
   "files.associations": {
     "*.jsx": "javascriptreact",
-    "process.h": "c"
+    "process.h": "c",
+    "builtin.h": "c"
   }
 }
