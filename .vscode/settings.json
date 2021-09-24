@@ -6,6 +6,7 @@
     "globals.h": "c",
     "error.c": "cpp",
     "string.h": "c",
-    "type_traits": "c"
+    "type_traits": "c",
+    "utilities.h": "c"
   }
 }

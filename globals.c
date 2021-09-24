@@ -18,8 +18,8 @@ CONFIG_ITEM parsedConfigList[MAX_CONFIG_ITEMS];
 
 
 // declare global variables
-char* path;
-char** currentDir;
+char* PATH;
+char** CURRENT_DIR;
 
 CONFIG_ITEM _tokenizer(char* line) {
     // split the line into parameter and it's value
@@ -87,6 +87,6 @@ void initializeGlobalVariables() {
     // }
     // printf("DEFAULT_PATH is: %s\n", getConfig("DEFAULT_PATH"));
 
-    // set global path variable
-    path = getConfig("DEFAULT_PATH");
+    // set global PATH variable
+    PATH = getConfig("DEFAULT_PATH");
 }

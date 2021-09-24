@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "globals.h"
-#include "process.h"
-#include "path.h"
+#include "execute.h"
+#include "utilities.h"
 #include "builtin.h"
 
 #define EXIT_CODE_SUCCESS 0
@@ -18,7 +18,8 @@ tashLoop()
 	// char argsLine[20];
 
 	while(shouldRun) {
-      if (currentDir) printf("(%s)", *currentDir);
+      printf("Current PATH is: %s\n", PATH);
+      if (CURRENT_DIR) printf("(%s)", *CURRENT_DIR);
 	   printf(TASH_PROMPT);
 
       char *usr_input_string;
@@ -121,11 +122,15 @@ tashLoop()
          if(strcmp(usr_cmd[i],var[0])==0 || strcmp(usr_cmd[i],var[1])==0){            
             printf("exit worked");
             usrexit();
-         }
-         if(strcmp(usr_cmd[i],var[2])==0 || strcmp(usr_cmd[i],var[3])==0){
+         } else if(strcmp(usr_cmd[i],var[2])==0 || strcmp(usr_cmd[i],var[3])==0){
             // printf("%s %s command arguments are",cmd_args[i][0],cmd_args[i][1]);
             usrchdir(&cmd_args[i],i);
             // printf("cd worked");
+         } else if(strcmp(usr_cmd[i],var[4])==0 || strcmp(usr_cmd[i],var[5])==0){
+            usrpath(&cmd_args[i],i);
+         } else {
+            executeArg(usr_cmd[i], &cmd_args[i][i]);
+            // getValidPath(usr_cmd[i]);
          }
       }
 
@@ -134,10 +139,9 @@ tashLoop()
 
 
       //check usr_cmd exists
-         //first lets compare to built in as it runs serially 
+      //first lets compare to built in as it runs serially 
 
-         //then lets check path variable and here we will fork babyyyy
-
+      //then lets check PATH variable and here we will fork babyyyy
       //need to change this val later
     //   shouldRun =0;
 	
@@ -152,7 +156,7 @@ main()
 	printf("Welcome to Tash!\n");
    initializeGlobalVariables(); // read from tashrc and set the global variables
 
-	// printf("The path variable is %s", path);
+	// printf("The PATH variable is %s", PATH);
 
 	// actual tash main logic
 	int exitCode;
