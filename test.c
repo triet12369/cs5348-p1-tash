@@ -1,25 +1,26 @@
-#define  _GNU_SOURCE
+
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
-#include "globals.h"
-#include "process.h"
-#include "path.h"
-#include "builtin.h"
+#include <unistd.h>
+//#include "process.h"
 
 #define EXIT_CODE_SUCCESS 0
 #define EXIT_CODE_ERROR 1
 #define TASH_PROMPT "tash> "
+
+void usrexit();
+void usrchdir(const char***,int);
 
 int
 tashLoop()
 {
 	int exitCode = EXIT_CODE_SUCCESS;
 	int shouldRun = 1;
-	// char argsLine[20];
-
+	char argsLine[20];
+	
 	while(shouldRun) {
-      if (currentDir) printf("(%s)", *currentDir);
-	   printf(TASH_PROMPT);
+
 
       char *usr_input_string;
       
@@ -44,7 +45,6 @@ tashLoop()
 
       if(cmd_args==NULL || usr_cmd==NULL || usr_cmds_separated==NULL || usr_input_string==NULL){
             perror("unable to allocate memory requested.");
-			error();
             exit(1);
          }
 
@@ -57,7 +57,6 @@ tashLoop()
 
          if(cmd_args[i]==NULL || usr_cmd[i]==NULL || usr_cmds_separated[i]==NULL){
             perror("unable to allocate memory requested.");
-			   error();
             exit(1);
          }
 
@@ -65,7 +64,6 @@ tashLoop()
             cmd_args[i][j]=(char*)calloc (cmd_arg_len,sizeof(char));
             if(cmd_args[i][j]==NULL){
                perror("unable to allocate memory requested.");
-			      error();
                exit(1);
             }          
          }
@@ -73,19 +71,27 @@ tashLoop()
          
       }
 
-	// read input from tash      
-		// size_t num_characters = getline(&usr_input_string, &buffsize, stdin);
-		getline(&usr_input_string, &buffsize, stdin);
-	
+      // read input from tash      
+      size_t num_characters = getline(&usr_input_string, &buffsize, stdin);
+
+   
+      
+
       //tokenize into separate commands first      
       char* token = strtok(usr_input_string, "&");
             
       int actual_num_cmds=0;
       while (token != NULL) {
+
          usr_cmds_separated[actual_num_cmds]=token;
          actual_num_cmds++;
          token = strtok(NULL, "&");
       }
+
+      
+      
+      
+
 
       for (int j=0; j<(actual_num_cmds); j++){
          token = strtok(usr_cmds_separated[j]," ");
@@ -106,7 +112,7 @@ tashLoop()
       //ex usr_cmd[0] will have cmd_args[0][j] : how many cmd args? check with zero
 
       //actual_num_cmds
-      printf("%d the actual number of commands \n",actual_num_cmds);
+      printf("%d the actual number of commands",actual_num_cmds);
       
       //WE NEED TO HANDLE THE ENTER (\n)
       char *var[]={"exit","exit\n","cd","cd\n","path","path\n"};
@@ -123,9 +129,10 @@ tashLoop()
             usrexit();
          }
          if(strcmp(usr_cmd[i],var[2])==0 || strcmp(usr_cmd[i],var[3])==0){
-            // printf("%s %s command arguments are",cmd_args[i][0],cmd_args[i][1]);
+            printf("%s %s command arguments are",cmd_args[i][0],cmd_args[i][1]);
             usrchdir(&cmd_args[i],i);
-            // printf("cd worked");
+            printf("cd worked");
+            
          }
       }
 
@@ -138,24 +145,29 @@ tashLoop()
 
          //then lets check path variable and here we will fork babyyyy
 
+
+
+		printf(TASH_PROMPT);
+
       //need to change this val later
-    //   shouldRun =0;
+      shouldRun =0;
 	
 	}
 
 	return exitCode;
 }
 
-int
-main()
+
+void path(){
+//overwrite path files
+}
+
+int main()
 {
-	printf("Welcome to Tash!\n");
-   initializeGlobalVariables(); // read from tashrc and set the global variables
-
-	// printf("The path variable is %s", path);
-
+	printf(TASH_PROMPT);
+	
 	// actual tash main logic
 	int exitCode;
 	exitCode = tashLoop();
 	return exitCode;
-}
+} 
