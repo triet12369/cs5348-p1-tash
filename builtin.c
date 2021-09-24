@@ -39,4 +39,9 @@ void usrchdir(char ***p,int index){
    }
 }
 
+// void usrpath(){
+//    exit(0);
+// //exit program 
+// }
+
 #endif

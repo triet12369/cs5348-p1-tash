@@ -1,3 +1,5 @@
+// utilities functions for path
+
 #include "stdio.h"
 #include "unistd.h"
 #include "globals.h"

@@ -2,6 +2,10 @@
   "files.associations": {
     "*.jsx": "javascriptreact",
     "process.h": "c",
-    "builtin.h": "c"
+    "builtin.h": "c",
+    "globals.h": "c",
+    "error.c": "cpp",
+    "string.h": "c",
+    "type_traits": "c"
   }
 }
