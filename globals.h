@@ -3,7 +3,7 @@
 #define GLOBALS
 #include "globals.c"
 
-extern char* path;
-extern char** currentDir;
+extern char* PATH;
+extern char** CURRENT_DIR;
 void initializeGlobalVariables();
 #endif
