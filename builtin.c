@@ -1,5 +1,3 @@
-#ifndef BUILTIN
-#define BUILTIN
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -52,5 +50,3 @@ void usrpath(char ***inputPath, int index){
    // printf("usrpath: newPath is %s with length %zu\n", newPath, strlen(newPath));
    strcpy(PATH, newPath);
 }
-
-#endif
