@@ -150,6 +150,8 @@ tashLoop()
 	return exitCode;
 }
 
+// main(int argc, char *argv[])
+// use this to get args for tash in batch mode
 int
 main()
 {
