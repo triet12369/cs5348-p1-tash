@@ -16,25 +16,34 @@ void usrexit(){
 
 void usrchdir(char ***p,int index){
    char cwd[PATH_MAX];
-   if(p[index][1] == NULL){
 
-      printf("only one argument passed so it works. %s %zu \n", p[index][0], strlen(p[index][0]));
-      p[index][0][strcspn(p[index][0], "\n")] = 0; // remove trailing \n character
-      int x = chdir(p[index][0]);
-      if (!x) CURRENT_DIR = &p[index][0];
-      else {
-         error();
-         printf("Change dir failed \n");
-         printf("ERRNO: %s\n", strerror(errno));
-      }
-      getcwd(cwd, sizeof(cwd));
-      printf("Currrent working directory is: %s\n", cwd);
-      printf("%d \n",x);      
-   }
-   else{
-      printf("more than one argument passed in. error.\n");
+   //if(strcmp(cmd_args[0][0],"")==0 ){
+   if(strcmp(p[index][0],"") ==0){
+      //printf("no arguments passed in. fail \n");
       error();
    }
+   else{
+         if(strcmp(p[index][1],"") ==0){
+
+         //printf("only one argument passed so it works. %s %zu \n", p[index][0], strlen(p[index][0]));
+         //p[index][0][strcspn(p[index][0], "\n")] = 0; // remove trailing \n character
+         int x = chdir(p[index][0]);
+         if (!x) CURRENT_DIR = &p[index][0];
+         else {
+            error();
+            //printf("Change dir failed \n");
+            //printf("ERRNO: %s\n", strerror(errno));
+         }
+         getcwd(cwd, sizeof(cwd));
+         printf("Currrent working directory is: %s\n", cwd);
+         printf("%d \n",x);      
+      }
+      else{
+         //printf("more than one argument passed in. error.\n");
+         error();
+      }
+
+   }  
 }
 
 void usrpath(char ***inputPath, int index){
