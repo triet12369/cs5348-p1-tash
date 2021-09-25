@@ -1,4 +1,4 @@
 #include "execute.c"
 
 void executeArg();
-void executeAllArgs();
+// void executeAllArgs();
