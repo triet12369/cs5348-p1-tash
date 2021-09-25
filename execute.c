@@ -12,7 +12,7 @@ char** const _makeExecvParams(char* path, char** args) {
   // I'll have to loop through args once to get the number
   int numberOfArgs;
   for (numberOfArgs = 0;;) {
-    if (args[numberOfArgs] != NULL) numberOfArgs++;
+    if (args[numberOfArgs] != NULL && (strcmp(args[numberOfArgs], "") != 0)) numberOfArgs++;
     else break;
   }
   char** paramList = (char**) malloc(numberOfArgs + 2);
@@ -36,7 +36,10 @@ void executeArg(char* programName, char** args) {
   printf("executeArg: programName is %s, arguments 1: %s \n", programName, args[0]);
   // First we need to get the accessable file name
   char* validProgramPath = getValidPath(programName);
-  if (!validProgramPath) error();
+  if (!validProgramPath) {
+    error();
+    return;
+  }
 
   // make new process and execv it
   pid_t pid;

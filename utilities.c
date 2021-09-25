@@ -20,7 +20,6 @@ char* _getPath(char* programName, char* basePath, int* status) {
         return combinedPath;
     } else {
         *status = 1;
-        error();
         return NULL;
     }
 }
@@ -31,7 +30,7 @@ getValidPath(char* programName) {
     // if the file is found and is executable, return the first
     // correct path
     if (!programName) return NULL;
-    programName[strcspn(programName, "\n")] = 0; // remove trailing \n character
+    // programName[strcspn(programName, "\n")] = 0; // remove trailing \n character
     printf("getValidPath: programName %s with length %zu\n", programName, strlen(programName));
     char* token;
     char* PATH_COPY = (char*) malloc(strlen(PATH) + 1);
