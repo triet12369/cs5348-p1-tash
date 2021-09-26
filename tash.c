@@ -30,11 +30,31 @@
 #define EXIT_CODE_ERROR 1
 #define TASH_PROMPT "tash> "
 
+int tashLoop(FILE *);
+void _batchmode(char *);
+
+void _batchmode(char * argv){
+   FILE *file_handle; 
+   file_handle=fopen(argv,"r");
+   if(file_handle==NULL) error();
+   else{
+      tashLoop(file_handle);
+   }
+}
+
+
+
+
 int
-tashLoop()
+tashLoop(FILE * arg_file)
 {
+   int batchmode_on=0;
+
+   if(arg_file !=NULL) batchmode_on=1;
+
 	int exitCode = EXIT_CODE_SUCCESS;
 	int shouldRun = 1;
+   int line_size =0;
 	// char argsLine[20];
    char *usr_input_string;
       
@@ -86,15 +106,16 @@ tashLoop()
    int handle_erroneous_inputs =1;
    int CASE_5;
 
-   while(handle_erroneous_inputs){
+   while(handle_erroneous_inputs && line_size>=0){
       
       CASE_5=0;
 
-      while(shouldRun) {
+      while(shouldRun && (line_size>=0)) {
 
          //printf("Current PATH is: %s\n", PATH);
          //if (CURRENT_DIR) printf("(%s)", *CURRENT_DIR);
-         printf(TASH_PROMPT);
+         if(!batchmode_on) printf(TASH_PROMPT);
+
 
          usr_input_string= (char*) malloc (buffsize*sizeof(char));
 
@@ -147,7 +168,8 @@ tashLoop()
 
          // read input from tash      
          // size_t num_characters = getline(&usr_input_string, &buffsize, stdin);
-         getline(&usr_input_string, &buffsize, stdin);
+         if(batchmode_on) line_size=getline(&usr_input_string, &buffsize, arg_file);
+         else getline(&usr_input_string,&buffsize,stdin);
       
       
 
@@ -271,21 +293,41 @@ tashLoop()
       //need to deallocate memory by free( ) here
 
    }
+   fclose(arg_file);
 	return exitCode;
 }
 
 // main(int argc, char *argv[])
 // use this to get args for tash in batch mode
 int
-main()
+main(int argc, char* argv[])
 {
+
 	//printf("Welcome to Tash!\n");
    initializeGlobalVariables(); // read from tashrc and set the global variables
 
 	// printf("The PATH variable is %s", PATH);
 
 	// actual tash main logic
-	int exitCode;
-	exitCode = tashLoop();
-	return exitCode;
+   if (argc==1){      
+      int exitCode;
+	   exitCode = tashLoop(NULL);
+	   return exitCode;
+   }
+   else if(argc==2){
+      _batchmode(argv[1]);
+   }
+   else{
+      error();
+   }
+	
 }
+
+/*
+int main(int argc, char** argv) {
+    std::cout << "Have " << argc << " arguments:" << std::endl;
+    for (int i = 0; i < argc; ++i) {
+        std::cout << argv[i] << std::endl;
+    }
+}
+*/
