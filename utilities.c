@@ -59,7 +59,7 @@ void cleanArgArray(char** args, int num_args) {
     int i;
     for (i = 0; i < num_args; ++i) {
         // printf("cleanArgArray %s %d\n", args[i], i);
-        if (strcmp(args[i], "") == 0) {
+        if (strcmp(args[i], "") == 0 || strcmp(args[i], "\n") == 0) {
             args[i] = NULL;
         };
     }

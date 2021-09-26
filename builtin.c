@@ -9,8 +9,9 @@
 
 
 
-void usrexit(){
-   exit(0);
+void usrexit(int num_args){
+   if (num_args > 0) error();
+   else exit(0);
 //exit program 
 }
 
@@ -35,8 +36,8 @@ void usrchdir(char ***p,int index){
             //printf("ERRNO: %s\n", strerror(errno));
          }
          getcwd(cwd, sizeof(cwd));
-         printf("Currrent working directory is: %s\n", cwd);
-         printf("%d \n",x);      
+         // printf("Currrent working directory is: %s\n", cwd);
+         // printf("%d \n",x);      
       }
       else{
          //printf("more than one argument passed in. error.\n");

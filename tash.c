@@ -139,7 +139,7 @@ tashLoop(FILE * arg_file)
          //If Allocation of memory fails :
          if(cmd_args==NULL || usr_cmd==NULL || usr_cmds_separated==NULL || usr_input_string==NULL){
             error();
-            usrexit();    
+            usrexit(0);    
          }
 
          for (int i=0; i<num_cmds; i++){
@@ -151,14 +151,14 @@ tashLoop(FILE * arg_file)
 
             if(cmd_args[i]==NULL || usr_cmd[i]==NULL || usr_cmds_separated[i]==NULL){
                error();
-               usrexit();
+               usrexit(0);
             }
 
             for(int j=0; j<num_args_per_cmd; j++){
                cmd_args[i][j]=(char*)calloc (cmd_arg_len,sizeof(char));
                if(cmd_args[i][j]==NULL){
                   error();
-                  usrexit();
+                  usrexit(0);
                }          
             }
             
@@ -275,7 +275,7 @@ tashLoop(FILE * arg_file)
                   cleanArgArray(&cmd_args[i][i], num_args[i]);
                   if(strcmp(usr_cmd[i],var[0])==0 || strcmp(usr_cmd[i],var[1])==0){            
                      //printf("exit worked");
-                     usrexit();
+                     usrexit(num_args[i]);
                   } else if(strcmp(usr_cmd[i],var[2])==0 || strcmp(usr_cmd[i],var[3])==0){
                      // printf("%s %s command arguments are",cmd_args[i][0],cmd_args[i][1]);
                      //printf(" the i value is : %d",i);
