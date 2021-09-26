@@ -134,6 +134,7 @@ tashLoop(FILE * arg_file)
          char **usr_cmds_separated=(char**) calloc(num_cmds, sizeof(char*));
          char **usr_cmd = (char**) calloc(num_cmds, sizeof(char*));
          char ***cmd_args = (char***) calloc(num_cmds, sizeof(char**));
+         int num_args[num_cmds];
 
          //If Allocation of memory fails :
          if(cmd_args==NULL || usr_cmd==NULL || usr_cmds_separated==NULL || usr_input_string==NULL){
@@ -243,8 +244,8 @@ tashLoop(FILE * arg_file)
                      cmd_args[j][k]=token;
                      k++;
                      token=strtok(NULL, " ");
-                     
                   }
+                  num_args[j] = k;
                }
                else{
                   //printf("caught error case 5");
@@ -270,19 +271,21 @@ tashLoop(FILE * arg_file)
             //unused slots have zero stored as an integer.
 
             for(int i=0; i<actual_num_cmds;i++){
-               if(strcmp(usr_cmd[i],var[0])==0 || strcmp(usr_cmd[i],var[1])==0){            
-                  //printf("exit worked");
-                  usrexit();
-               } else if(strcmp(usr_cmd[i],var[2])==0 || strcmp(usr_cmd[i],var[3])==0){
-                  // printf("%s %s command arguments are",cmd_args[i][0],cmd_args[i][1]);
-                  //printf(" the i value is : %d",i);
-                  usrchdir(&cmd_args[i],i);
-                  // printf("cd worked");
-               } else if(strcmp(usr_cmd[i],var[4])==0 || strcmp(usr_cmd[i],var[5])==0){
-                  usrpath(&cmd_args[i],i);
-               } else {
-                  executeArg(usr_cmd[i], &cmd_args[i][i]);
-                  // getValidPath(usr_cmd[i]);
+               if (usr_cmds_separated[i]) {
+                  cleanArgArray(&cmd_args[i][i], num_args[i]);
+                  if(strcmp(usr_cmd[i],var[0])==0 || strcmp(usr_cmd[i],var[1])==0){            
+                     //printf("exit worked");
+                     usrexit();
+                  } else if(strcmp(usr_cmd[i],var[2])==0 || strcmp(usr_cmd[i],var[3])==0){
+                     // printf("%s %s command arguments are",cmd_args[i][0],cmd_args[i][1]);
+                     //printf(" the i value is : %d",i);
+                     usrchdir(&cmd_args[i],i);
+                     // printf("cd worked");
+                  } else if(strcmp(usr_cmd[i],var[4])==0 || strcmp(usr_cmd[i],var[5])==0){
+                     usrpath(&cmd_args[i],i);
+                  } else {
+                     executeArg(usr_cmd[i], &cmd_args[i][i], num_args[i]);
+                  }
                }
             }
 

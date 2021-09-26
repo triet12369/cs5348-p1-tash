@@ -4,4 +4,5 @@
 #include "utilities.c"
 
 char* getValidPath(char* programName);
+void cleanArgsArray(char** args);
 #endif

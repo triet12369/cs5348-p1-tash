@@ -1,39 +1,126 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 #include "error.h"
 #include "utilities.h"
 
-char** const _makeExecvParams(char* path, char** args) {
-  // execv accepts NULL terminated char* array and the first element has to be
-  // the path of the file to run
-
-  // I don't know the number of args since args is a pointer to pointer so
-  // I'll have to loop through args once to get the number
+int _getNumberOfArgs(char** args) {
   int numberOfArgs;
   for (numberOfArgs = 0;;) {
     if (args[numberOfArgs] != NULL && (strcmp(args[numberOfArgs], "") != 0)) numberOfArgs++;
     else break;
   }
-  char** paramList = (char**) malloc(numberOfArgs + 2);
+  return numberOfArgs;
+}
+
+int _getSingleIndexOfChar(char** stringArr, int arrSize, char c) {
+  // look for index of char in array of strings
+  // return -1 if char not found
+  // return -2 if multiple instances are found
+  int i, count = 0;
+  int index = -1;
+  for (i = 0; i < arrSize; ++i) {
+    if (stringArr[i] != NULL) {
+      // printf("checking %s\n", stringArr[i]);
+      int k;
+      for (k = 0; stringArr[i][k]; k++) {
+        if (stringArr[i][k] == c) {
+          // printf("found at %d\n", k);
+          count++;
+          index = i;
+        }
+      }
+    }
+  }
+  if (count > 1) return -2;
+  return index;
+}
+
+typedef struct execInfo {
+  char* redirectTargetOutput; // output.txt
+  char** args; // -la > output.txt --> -la
+  int numArgs; // 1
+} EXEC_INFO;
+
+EXEC_INFO _prepareArgs (char** args, int num_args) {
+  // look for redirection characters e.g. '>' '<'
+  // and return the args as well as redirection parameters
+  // printf("_catchRedirections input args 0: %s\n", args[0]);
+  EXEC_INFO execInfo;
+  // char** target;
+  // loop through the args and find '>'
+  char RE_OUT = '>';
+  // printf("Index of redirect: %d\n", _getSingleIndexOfChar(args, num_args, RE_OUT));
+  int indexOfRedirectInArgs = _getSingleIndexOfChar(args, num_args, RE_OUT);
+
+  if (indexOfRedirectInArgs == -1) {
+    execInfo.numArgs = num_args;
+    execInfo.args = args;
+    execInfo.redirectTargetOutput = NULL;
+    return execInfo;
+  } else if (indexOfRedirectInArgs == -2) {
+    execInfo.numArgs = -1;
+    error();
+    return execInfo;
+  }
+  else {
+    execInfo.numArgs = indexOfRedirectInArgs;
+    if (strlen(args[indexOfRedirectInArgs]) > 1) {
+      // '>output.txt' ls >output output2
+      if (indexOfRedirectInArgs + 1 == num_args - 1) {
+        // extra argurment after e.g. multiple files
+        error();
+        execInfo.numArgs = -1;
+      } else execInfo.redirectTargetOutput = args[indexOfRedirectInArgs] + 1;
+    } else if (args[indexOfRedirectInArgs + 1] == NULL) {
+      // no target specified
+      error();
+      execInfo.numArgs = -1;
+    } else {
+      // > output.txt
+      if (indexOfRedirectInArgs + 2 == num_args - 1) {
+        // extra argurment after
+        error();
+        execInfo.numArgs = -1;
+      } else execInfo.redirectTargetOutput = args[indexOfRedirectInArgs + 1];
+    }
+  }
+
+  // copy the part before redirection as args
+  if (execInfo.numArgs != -1) {
+    int k;
+    execInfo.args = (char**) malloc(indexOfRedirectInArgs + 1 * sizeof(char));
+    for (k = 0; k <= indexOfRedirectInArgs; ++k) {
+      execInfo.args[k] = (char*) malloc(strlen(args[k]) + 1);
+      strcpy(execInfo.args[k], args[k]);
+    }
+  }
+  return execInfo;
+}
+
+char** const _makeExecvParams(char* path, char** args, int num_args) {
+  // execv accepts NULL terminated char* array and the first element has to be
+  // the path of the file to run
+  char** paramList = (char**) malloc(num_args + 2);
 
   // Set first item to file path
   paramList[0] = malloc(strlen(path) + 1);
   strcpy(paramList[0], path);
   // Set last item to NULL
-  paramList[numberOfArgs + 1] = NULL;
+  paramList[num_args + 1] = NULL;
   // Set arguments
   int i;
-  for (i = 0; i < numberOfArgs; ++i) {
+  for (i = 0; i < num_args; ++i) {
     paramList[i + 1] = malloc(strlen(args[i]) + 1);
     strcpy(paramList[i + 1], args[i]);
   }
-  // printf("_makeExecvParams: paramList test: %s \n", paramList[2]);
+  // printf("_makeExecvParams: paramList test: %s \n", paramList[0]);
   return paramList;
 }
 
-void executeArg(char* programName, char** args) {
-  printf("executeArg: programName is %s, arguments 1: %s \n", programName, args[0]);
+void executeArg(char* programName, char** args, int num_args) {
+  // printf("executeArg: programName is %s, arguments 1: %s \n", programName, args[0]);
   // First we need to get the accessable file name
   char* validProgramPath = getValidPath(programName);
   if (!validProgramPath) {
@@ -41,16 +128,38 @@ void executeArg(char* programName, char** args) {
     return;
   }
 
+  // catch redirections
+  EXEC_INFO execInfo;
+  execInfo = _prepareArgs(args, num_args);
+  if (execInfo.numArgs == -1) return;
+
+  // store STDOUT and STDERR for later
+  int STDOUT = dup(STDOUT_FILENO);
+  int STDERR = dup(STDERR_FILENO);
   // make new process and execv it
   pid_t pid;
-  char** const paramList = _makeExecvParams(validProgramPath, args);
+  char** const paramList = _makeExecvParams(validProgramPath, execInfo.args, execInfo.numArgs);
   pid = fork();
   if (pid == 0) {
     // child
+    if (execInfo.redirectTargetOutput != NULL) {
+      // redirect output
+      int fileDescriptor = open(execInfo.redirectTargetOutput, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+      if (fileDescriptor == -1) {
+        error();
+        return;
+      }
+      // Replace STDOUT and STDERR with fileDescriptor
+      dup2(fileDescriptor, STDOUT_FILENO);
+      dup2(fileDescriptor, STDERR_FILENO);
+      close(fileDescriptor);
+    }
     execv(validProgramPath, paramList);
   } else if (pid == -1) error();
   else {
     // parent
     wait(NULL); // wait for children to finish executing
+    dup2(STDOUT, STDOUT_FILENO);
+    dup2(STDERR, STDERR_FILENO);
   }
 };
