@@ -269,10 +269,12 @@ tashLoop(FILE * arg_file)
             }
             */
             //unused slots have zero stored as an integer.
-
+            int i;
+            for (i = 0; i < actual_num_cmds; ++i) {
+               cleanArgArray(&cmd_args[i][i], num_args[i]);
+            }
             if (actual_num_cmds < 2) {
                if (usr_cmds_separated[0]) {
-                  cleanArgArray(&cmd_args[0][0], num_args[0]);
                   executeCommand(usr_cmd[0], &cmd_args[0][0], num_args[0]);
                }
             } else {
