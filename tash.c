@@ -262,7 +262,7 @@ tashLoop(FILE * arg_file)
 
             
             //WE NEED TO HANDLE THE ENTER (\n)
-            char *var[]={"exit","exit\n","cd","cd\n","path","path\n"};
+            // char *var[]={"exit","exit\n","cd","cd\n","path","path\n"};
             /*
             if(strcmp(usr_cmd[0],var)==0){
                printf("%c value stored in usr_cmd[0]",(*usr_cmd[5]+'0'));
@@ -270,24 +270,38 @@ tashLoop(FILE * arg_file)
             */
             //unused slots have zero stored as an integer.
 
-            for(int i=0; i<actual_num_cmds;i++){
-               if (usr_cmds_separated[i]) {
-                  cleanArgArray(&cmd_args[i][i], num_args[i]);
-                  if(strcmp(usr_cmd[i],var[0])==0 || strcmp(usr_cmd[i],var[1])==0){            
-                     //printf("exit worked");
-                     usrexit(num_args[i]);
-                  } else if(strcmp(usr_cmd[i],var[2])==0 || strcmp(usr_cmd[i],var[3])==0){
-                     // printf("%s %s command arguments are",cmd_args[i][0],cmd_args[i][1]);
-                     //printf(" the i value is : %d",i);
-                     usrchdir(&cmd_args[i],i);
-                     // printf("cd worked");
-                  } else if(strcmp(usr_cmd[i],var[4])==0 || strcmp(usr_cmd[i],var[5])==0){
-                     usrpath(&cmd_args[i][i], num_args[i]);
-                  } else {
-                     executeArg(usr_cmd[i], &cmd_args[i][i], num_args[i]);
-                  }
+            if (actual_num_cmds < 2) {
+               if (usr_cmds_separated[0]) {
+                  cleanArgArray(&cmd_args[0][0], num_args[0]);
+                  executeCommand(usr_cmd[0], &cmd_args[0][0], num_args[0]);
                }
+            } else {
+               // executeParallelCommand();
+               // int i;
+               executeAllCommand(usr_cmd, cmd_args, num_args, actual_num_cmds);
+               // for (i = 0; i < actual_num_cmds; ++i) {
+               //    executeCommand(usr_cmd[i], &cmd_args[i][i], num_args[i]);
+               // }
             }
+
+            // for(int i=0; i<actual_num_cmds;i++){
+            //    if (usr_cmds_separated[i]) {
+            //       cleanArgArray(&cmd_args[i][i], num_args[i]);
+            //       if(strcmp(usr_cmd[i],var[0])==0 || strcmp(usr_cmd[i],var[1])==0){            
+            //          //printf("exit worked");
+            //          usrexit(num_args[i]);
+            //       } else if(strcmp(usr_cmd[i],var[2])==0 || strcmp(usr_cmd[i],var[3])==0){
+            //          // printf("%s %s command arguments are",cmd_args[i][0],cmd_args[i][1]);
+            //          //printf(" the i value is : %d",i);
+            //          usrchdir(&cmd_args[i],i);
+            //          // printf("cd worked");
+            //       } else if(strcmp(usr_cmd[i],var[4])==0 || strcmp(usr_cmd[i],var[5])==0){
+            //          usrpath(&cmd_args[i][i], num_args[i]);
+            //       } else {
+            //          executeArg(usr_cmd[i], &cmd_args[i][i], num_args[i]);
+            //       }
+            //    }
+            // }
 
          }
 

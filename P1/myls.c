@@ -12,7 +12,7 @@ int main(){
   		//close(1);
   		// int fd = open("output.txt", O_RDWR|O_CREAT);
 		// execute a program
-		char *myargs[] = {"ls", "/cs4348-xv6/src/testcases/P1/test", 0};
+		char *myargs[] = {"ls", "test", 0};
 		execv("/bin/ls", myargs);
 		printf("EXEC FAILED");
 	}

@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include "error.h"
 #include "utilities.h"
+#include "builtin.h"
 
 int _getNumberOfArgs(char** args) {
   int numberOfArgs;
@@ -38,6 +39,7 @@ int _getSingleIndexOfChar(char** stringArr, int arrSize, char c) {
 }
 
 typedef struct execInfo {
+  char* programPath;
   char* redirectTargetOutput; // output.txt
   char** args; // -la > output.txt --> -la
   int numArgs; // 1
@@ -102,6 +104,7 @@ EXEC_INFO _prepareArgs (char** args, int num_args) {
 char** const _makeExecvParams(char* path, char** args, int num_args) {
   // execv accepts NULL terminated char* array and the first element has to be
   // the path of the file to run
+  // printf("_makeExecvParams %s\n", path);
   char** paramList = (char**) malloc(num_args + 2);
 
   // Set first item to file path
@@ -119,6 +122,21 @@ char** const _makeExecvParams(char* path, char** args, int num_args) {
   return paramList;
 }
 
+EXEC_INFO getExecInfo (char* programName, char** args, int num_args) {
+  // First we need to get the accessable file name
+  EXEC_INFO execInfo;
+  char* validProgramPath = getValidPath(programName);
+  if (!validProgramPath) {
+    error();
+    execInfo.numArgs = -1;
+    return execInfo;
+  }
+  execInfo = _prepareArgs(args, num_args);
+  execInfo.programPath = (char*) malloc(strlen(validProgramPath) + 1);
+  strcpy(execInfo.programPath, validProgramPath);
+  return execInfo;
+}
+
 void executeArg(char* programName, char** args, int num_args) {
   // printf("executeArg: programName is %s, arguments 1: %s \n", programName, args[0]);
   // First we need to get the accessable file name
@@ -129,8 +147,7 @@ void executeArg(char* programName, char** args, int num_args) {
   }
 
   // catch redirections
-  EXEC_INFO execInfo;
-  execInfo = _prepareArgs(args, num_args);
+  EXEC_INFO execInfo = getExecInfo(programName, args, num_args);
   if (execInfo.numArgs == -1) return;
 
   // store STDOUT and STDERR for later
@@ -163,3 +180,61 @@ void executeArg(char* programName, char** args, int num_args) {
     dup2(STDERR, STDERR_FILENO);
   }
 };
+
+void executeAllCommand(char** commands, char*** cmd_args, int num_args[], int num_cmds) {
+  // EXEC_INFO** execList = (EXEC_INFO*) malloc(sizeof(EXEC_INFO) * num_cmds);
+  EXEC_INFO execInfo;
+  pid_t pids[num_cmds];
+  int i;
+  int STDOUT = dup(STDOUT_FILENO);
+  int STDERR = dup(STDERR_FILENO);
+  for (i = 0; i < num_cmds; ++i) {
+    execInfo = getExecInfo(commands[i], &cmd_args[i][i], num_args[i]);
+    // store STDOUT and STDERR for later
+    // make new process and execv it
+    // pid_t pid;
+    char** const paramList = _makeExecvParams(execInfo.programPath, execInfo.args, execInfo.numArgs);
+    pids[i] = fork();
+    if (pids[i] == 0) {
+      // child
+      printf("child running %s %s %d\n", execInfo.programPath, execInfo.args[0], execInfo.numArgs);
+      if (execInfo.redirectTargetOutput != NULL) {
+        // redirect output
+        int fileDescriptor = open(execInfo.redirectTargetOutput, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+        if (fileDescriptor == -1) {
+          error();
+          return;
+        }
+        // Replace STDOUT and STDERR with fileDescriptor
+        dup2(fileDescriptor, STDOUT_FILENO);
+        dup2(fileDescriptor, STDERR_FILENO);
+        close(fileDescriptor);
+      }
+      execv(execInfo.programPath, paramList);
+    } else if (pids[i] == -1) error();
+  }
+  for (i = 0; i < num_cmds; ++i) {
+      if (pids[i] != 0) {
+        // parent
+        waitpid(pids[i], NULL, 0); // wait for children to finish executing
+        dup2(STDOUT, STDOUT_FILENO);
+        dup2(STDERR, STDERR_FILENO);
+      }
+    }
+}
+
+void executeCommand(char* command, char** cmd_args, int num_args) {
+  if(strcmp(command, BUILTIN_NAMES[0])==0 || strcmp(command, BUILTIN_NAMES[1])==0){            
+      //printf("exit worked");
+      usrexit(num_args);
+  } else if(strcmp(command, BUILTIN_NAMES[2])==0 || strcmp(command, BUILTIN_NAMES[3])==0){
+      // printf("%s %s command arguments are",cmd_args[i][0],cmd_args[i][1]);
+      //printf(" the i value is : %d",i);
+      usrchdir(cmd_args);
+      // printf("cd worked");
+  } else if(strcmp(command, BUILTIN_NAMES[4])==0 || strcmp(command, BUILTIN_NAMES[5])==0){
+      usrpath(cmd_args, num_args);
+  } else {
+      executeArg(command, cmd_args, num_args);
+  }
+}

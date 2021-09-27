@@ -15,21 +15,21 @@ void usrexit(int num_args){
 //exit program 
 }
 
-void usrchdir(char ***p,int index){
+void usrchdir(char** args){
    char cwd[PATH_MAX];
 
    //if(strcmp(cmd_args[0][0],"")==0 ){
-   if(strcmp(p[index][0],"") ==0){
+   if(strcmp(args[0],"") ==0){
       //printf("no arguments passed in. fail \n");
       error();
    }
    else{
-         if(strcmp(p[index][1],"") ==0){
+         if(strcmp(args[1],"") ==0){
 
-         //printf("only one argument passed so it works. %s %zu \n", p[index][0], strlen(p[index][0]));
-         //p[index][0][strcspn(p[index][0], "\n")] = 0; // remove trailing \n character
-         int x = chdir(p[index][0]);
-         if (!x) CURRENT_DIR = &p[index][0];
+         //printf("only one argument passed so it works. %s %zu \n", args, strlen(args));
+         //args[strcspn(args, "\n")] = 0; // remove trailing \n character
+         int x = chdir(args[0]);
+         if (!x) CURRENT_DIR = &args[0];
          else {
             error();
             //printf("Change dir failed \n");

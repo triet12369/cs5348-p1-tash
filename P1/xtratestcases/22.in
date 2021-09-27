@@ -1,3 +1,3 @@
-path /bin <path to P1>/P1
+path /bin /home/011/t/tx/txc200031/projects/cs5348-p1-tash/P1
 cd test & myhello & myls
 exit
