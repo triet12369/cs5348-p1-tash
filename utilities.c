@@ -29,7 +29,7 @@ char* getValidPath(char* programName) {
     // if the file is found and is executable, return the first
     // correct path
     if (!programName) return NULL;
-    // printf("getValidPath PATH %s\n", PATH);
+    printf("getValidPath PATH %s\n", PATH);
     // programName[strcspn(programName, "\n")] = 0; // remove trailing \n character
     // printf("getValidPath: programName %s with length %zu\n", programName, strlen(programName));
     char* token;
@@ -42,10 +42,12 @@ char* getValidPath(char* programName) {
         token = strtok(PATH_COPY, " ");
         // printf("PATH token %s\n", token);
         if (token) validPath = _getPath(programName, token, &status);
+        if (validPath) break;
 
         while (token != NULL) {
             token = strtok(NULL, " ");
             if (token) validPath = _getPath(programName, token, &status);
+            if (validPath) break;
         }
         status = 0;
     }
