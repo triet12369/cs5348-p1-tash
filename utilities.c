@@ -29,6 +29,7 @@ char* getValidPath(char* programName) {
     // if the file is found and is executable, return the first
     // correct path
     if (!programName) return NULL;
+    // printf("getValidPath PATH %s\n", PATH);
     // programName[strcspn(programName, "\n")] = 0; // remove trailing \n character
     // printf("getValidPath: programName %s with length %zu\n", programName, strlen(programName));
     char* token;
@@ -39,7 +40,8 @@ char* getValidPath(char* programName) {
     int status = 1;
     while (status) {
         token = strtok(PATH_COPY, " ");
-        validPath = _getPath(programName, token, &status);
+        // printf("PATH token %s\n", token);
+        if (token) validPath = _getPath(programName, token, &status);
 
         while (token != NULL) {
             token = strtok(NULL, " ");
@@ -63,4 +65,14 @@ void cleanArgArray(char** args, int num_args) {
             args[i] = NULL;
         };
     }
+}
+
+int getStringArraySizeBytes(char** stringArr, int sizeArr) {
+    int i;
+    int size = 0;
+    for (i = 0; i < sizeArr; ++i) {
+        size += strlen(stringArr[i]);
+        if (i != 0) size += 2;
+    }
+    return size;
 }

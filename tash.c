@@ -282,7 +282,7 @@ tashLoop(FILE * arg_file)
                      usrchdir(&cmd_args[i],i);
                      // printf("cd worked");
                   } else if(strcmp(usr_cmd[i],var[4])==0 || strcmp(usr_cmd[i],var[5])==0){
-                     usrpath(&cmd_args[i],i);
+                     usrpath(&cmd_args[i][i], num_args[i]);
                   } else {
                      executeArg(usr_cmd[i], &cmd_args[i][i], num_args[i]);
                   }

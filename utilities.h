@@ -5,4 +5,5 @@
 
 char* getValidPath(char* programName);
 void cleanArgsArray(char** args);
+int getStringArraySizeBytes(char** stringArray, int sizeArr);
 #endif
