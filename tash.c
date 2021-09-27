@@ -123,11 +123,11 @@ tashLoop(FILE * arg_file)
          //create dynamic 2D char arrays to store 1. user commands 2. user arguments per process 
             
          //maximum number of commands a user can have in 1 line
-         int num_cmds=20;
+         int num_cmds=6000;
          //maximum number of arguments a user can provide for a command 
-         int num_args_per_cmd=5;
+         int num_args_per_cmd=20;
          //maximum number of characters per argument
-         int cmd_arg_len = 30;
+         int cmd_arg_len = 300;
             
          //used calloc cause it gets initialized to zero at declaration which we can use as a check
 

@@ -193,11 +193,12 @@ void executeAllCommand(char** commands, char*** cmd_args, int num_args[], int nu
     // store STDOUT and STDERR for later
     // make new process and execv it
     // pid_t pid;
+    // printf("child running %s %s %s %d\n", execInfo.programPath, execInfo.args[0], execInfo.redirectTargetOutput, execInfo.numArgs);
     char** const paramList = _makeExecvParams(execInfo.programPath, execInfo.args, execInfo.numArgs);
     pids[i] = fork();
     if (pids[i] == 0) {
       // child
-      printf("child running %s %s %d\n", execInfo.programPath, execInfo.args[0], execInfo.numArgs);
+      // printf("child running %s %s %d\n", execInfo.programPath, execInfo.args[0], execInfo.numArgs);
       if (execInfo.redirectTargetOutput != NULL) {
         // redirect output
         int fileDescriptor = open(execInfo.redirectTargetOutput, O_WRONLY | O_CREAT | O_TRUNC, 0777);

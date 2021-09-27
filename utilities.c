@@ -58,11 +58,13 @@ char* getValidPath(char* programName) {
 
 void cleanArgArray(char** args, int num_args) {
     // convert empty strings to NULL
+    printf("cleanArgArray %d\n", num_args);
     if (args == NULL) return;
     // printf("Num args %d\n", num_args);
     int i;
     for (i = 0; i < num_args; ++i) {
-        // printf("cleanArgArray %s %d\n", args[i], i);
+        printf("cleanArgArray %s %d\n", args[i], i);
+        if (args[i] == NULL) return;
         if (strcmp(args[i], "") == 0 || strcmp(args[i], "\n") == 0) {
             args[i] = NULL;
         };
